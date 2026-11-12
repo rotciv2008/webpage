@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Levantamiento de información web | Víctor Vásquez</title>
+<style>
+:root{
+  --primary:#C6CFF2; --primary-dark:#8797D0; --primary-soft:#EEF0FA;
+  --ink:#20243A; --muted:#697087; --line:#E2E5EF; --bg:#F6F7FB;
+  --white:#FFFFFF; --success:#DDF3E7; --success-ink:#236542;
+  --warning:#FFF0CC; --warning-ink:#805B0A; --na:#ECEEF3;
+  --shadow:0 8px 28px rgba(35,43,78,.07);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+header{background:linear-gradient(125deg,#C6CFF2 0%,#DDE2F8 55%,#F1F2FA 100%);padding:34px 22px 30px;border-bottom:1px solid #B9C4EB}
+.header-inner,.layout{max-width:1160px;margin:auto}
+.eyebrow{text-transform:uppercase;letter-spacing:.13em;font-size:11px;font-weight:800;color:#4D5C99}
+h1{font-size:clamp(27px,4vw,40px);line-height:1.12;margin:8px 0 10px;letter-spacing:-.035em}
+header p{max-width:720px;margin:0;color:#465071}
+main{max-width:1160px;margin:24px auto;padding:0 18px 50px;display:grid;grid-template-columns:255px minmax(0,1fr);gap:22px}
+aside{position:sticky;top:16px;align-self:start;background:white;border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow)}
+aside h2{font-size:13px;margin:0 0 12px}
+nav{display:grid;gap:5px}
+nav a{color:var(--muted);text-decoration:none;padding:8px 10px;border-radius:9px;font-size:13px}
+nav a:hover,nav a.active{background:var(--primary-soft);color:#39477E;font-weight:700}
+.progress-wrap{margin:15px 0 6px}
+.progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:7px}
+.progress{height:8px;border-radius:99px;background:#ECEEF5;overflow:hidden}
+.progress span{display:block;height:100%;background:var(--primary-dark);width:0%;transition:width .2s}
+main .content{min-width:0}
+.toolbar{display:flex;gap:9px;justify-content:flex-end;flex-wrap:wrap;margin-bottom:14px}
+button{border:0;border-radius:10px;padding:10px 14px;font:inherit;font-size:13px;font-weight:750;cursor:pointer}
+.btn-primary{background:#46558F;color:white}.btn-primary:hover{background:#354276}
+.btn-light{background:white;color:#39436E;border:1px solid var(--line)}
+.btn-danger{background:#FCE8E8;color:#963E3E}
+.notice{background:#F0F2FB;border:1px solid #DCE1F5;border-radius:12px;padding:12px 15px;color:#515D88;font-size:13px;margin-bottom:16px}
+details.accordion{background:white;border:1px solid var(--line);border-radius:16px;padding:0;margin-bottom:16px;box-shadow:var(--shadow);scroll-margin-top:16px;overflow:hidden}
+summary.section-head{list-style:none;cursor:pointer;padding:20px 22px;margin:0;align-items:center;user-select:none}
+summary.section-head::-webkit-details-marker{display:none}
+summary.section-head:after{content:'＋';font-size:22px;line-height:1;color:#6574AD;margin-left:auto;padding-left:12px}
+details[open] summary.section-head:after{content:'−'}
+details.accordion > :not(summary){margin-left:22px;margin-right:22px}
+details.accordion > h3:first-of-type{margin-top:8px}
+details.accordion > .grid:last-child{margin-bottom:22px}
+details.accordion > .notice:last-child{margin-bottom:22px!important}
+details.accordion[open]{padding-bottom:1px}
+.section-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:5px}
+h2{font-size:20px;letter-spacing:-.02em;margin:0 0 4px}
+.section-desc{color:var(--muted);font-size:13px;margin:0 0 18px}
+.section-num{background:var(--primary-soft);color:#52619C;border-radius:9px;padding:5px 9px;font-weight:800;font-size:12px}
+h3{font-size:14px;margin:20px 0 10px;color:#46517D}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.field{min-width:0}
+.field.full{grid-column:1/-1}
+label.field-label{display:block;font-size:13px;font-weight:700;margin-bottom:5px}
+.help{font-size:11px;color:var(--muted);font-weight:400}
+input[type=text],input[type=email],input[type=url],input[type=tel],input[type=date],textarea,select{
+ width:100%;border:1px solid #DDE1EB;border-radius:9px;padding:10px 11px;background:#FCFCFE;color:var(--ink);font:inherit;font-size:13px;outline:none
+}
+textarea{min-height:78px;resize:vertical}
+input:focus,textarea:focus,select:focus{border-color:#8797D0;box-shadow:0 0 0 3px rgba(198,207,242,.45)}
+.field-meta{display:flex;justify-content:flex-end;margin-top:5px}
+.status{border:1px solid var(--line);border-radius:8px;padding:4px 7px;background:#fff;color:var(--muted);font-size:11px}
+.status.entregado{background:var(--success);color:var(--success-ink);border-color:#C6E8D4}
+.status.na{background:var(--na);color:#62697B}
+.status.pendiente{background:var(--warning);color:var(--warning-ink);border-color:#F3E0A9}
+.checks{display:flex;gap:8px 16px;flex-wrap:wrap;padding:7px 0}
+.checks label{font-size:13px;display:flex;gap:7px;align-items:center}
+.checks input{accent-color:#6678B7}
+.repeat-item{border:1px solid var(--line);background:#FAFBFE;border-radius:12px;padding:14px;margin:12px 0}
+.repeat-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-weight:750;font-size:13px}
+.remove{background:#FCE8E8;color:#963E3E;padding:5px 9px;font-size:11px}
+.add{background:var(--primary-soft);color:#46558F;border:1px dashed #AAB5E1;margin-top:8px}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:22px}
+footer strong{color:#4D5C99}
+.small-note{font-size:11px;color:var(--muted);margin-top:8px}
+@media(max-width:800px){main{grid-template-columns:1fr}aside{position:static}.grid{grid-template-columns:1fr}.field.full{grid-column:auto}}
+@media print{body{background:white}aside,.toolbar,.add,.remove,.field-meta{display:none!important}main{display:block;margin:0;padding:0}details.accordion:not([open]) > :not(summary){display:block!important}details.accordion{box-shadow:none;break-inside:avoid}header{padding:20px}input,textarea,select{border:0!important;border-bottom:1px solid #ccc!important;background:white!important}}
+</style>
+</head>
+<body>
+<header><div class="header-inner">
+ <div class="eyebrow">Brief de proyecto · Sitio web</div>
+ <h1>Levantamiento de información</h1>
+ <p>Completa este formulario para reunir la información del negocio, los objetivos, el contenido y los recursos necesarios antes de iniciar el diseño y desarrollo de la página web.</p>
+</div></header>
+<main>
+<aside>
+ <h2>Contenido del formulario</h2>
+ <nav id="nav">
+  <a href="#proyecto">Datos del proyecto</a><a href="#negocio">1. Negocio</a><a href="#objetivos">2. Objetivos comerciales</a><a href="#seo">3. SEO</a><a href="#contenido">4. Contenido</a><a href="#recursos">5. Recursos</a><a href="#contacto">6. Contacto</a><a href="#tecnico">7. Información técnica</a><a href="#revision">8. Revisión final</a>
+ </nav>
+ <div class="progress-wrap"><div class="progress-label"><span>Campos entregados</span><strong id="percent">0%</strong></div><div class="progress"><span id="bar"></span></div></div>
+ <div class="small-note">El avance se calcula con los campos marcados como Entregado o N/A.</div>
+</aside>
+<div class="content">
+ <div class="toolbar">
+  <button class="btn-light" type="button" onclick="window.print()">Imprimir / guardar PDF</button>
+  <button class="btn-light" type="button" onclick="loadDraft()">Recuperar borrador</button>
+  <button class="btn-primary" type="button" onclick="exportJSON()">Descargar archivo de salida (.json)</button>
+ </div>
+ <div class="notice"><strong>¿Dónde queda el JSON?</strong> Al pulsar “Descargar archivo de salida”, el navegador lo guarda en la carpeta <b>Descargas / Downloads</b> de tu computador (o te pregunta dónde guardarlo, según la configuración). No se envía a un servidor ni queda guardado en una carpeta central. El nombre comienza con <code>levantamiento_</code>.</div>
+ <div class="notice"><strong>Cómo completar:</strong> responde los campos que correspondan y marca cada uno como <b>Entregado</b>, <b>N/A</b> o <b>Pendiente</b>. Si algo no existe todavía, déjalo pendiente o indica N/A. No compartas contraseñas ni credenciales en este formulario.</div>
+ <form id="brief">
+ <details class="accordion" id="proyecto">
+  <summary class="section-head"><div><h2>Datos generales del proyecto</h2><p class="section-desc">Identificación y seguimiento del levantamiento.</p></div><span class="section-num">INICIO</span></summary>
+  <div class="grid">
+   <div class="field"><label class="field-label">Nombre del proyecto</label><input name="project_name" type="text" placeholder="Ej. Sitio web institucional"></div>
+   <div class="field"><label class="field-label">Nombre de la empresa / negocio</label><input name="business_name" type="text"></div>
+   <div class="field"><label class="field-label">Responsable de entregar información</label><input name="responsible" type="text"></div>
+   <div class="field"><label class="field-label">Correo de contacto del responsable</label><input name="responsible_email" type="email"></div>
+   <div class="field"><label class="field-label">Fecha de inicio</label><input name="start_date" type="date"></div>
+   <div class="field"><label class="field-label">Fecha estimada de entrega</label><input name="due_date" type="date"></div>
+  </div>
+ </details>
+ <details class="accordion" id="negocio">
+  <summary class="section-head"><div><h2>1. Información general del negocio</h2><p class="section-desc">Conocer qué hace el negocio, a quién atiende y qué lo diferencia.</p></div><span class="section-num">01</span></summary>
+  <h3>Identificación</h3><div class="grid">
+   <div class="field"><label class="field-label">Nombre comercial</label><input name="trade_name" type="text"></div>
+   <div class="field"><label class="field-label">Razón social <span class="help">(si aplica)</span></label><input name="legal_name" type="text"></div>
+   <div class="field"><label class="field-label">Actividad económica</label><input name="activity" type="text" placeholder="¿A qué se dedica?"></div>
+   <div class="field"><label class="field-label">País y ciudad</label><input name="location" type="text"></div>
+   <div class="field"><label class="field-label">Dirección física <span class="help">(si aplica)</span></label><input name="physical_address" type="text"></div>
+   <div class="field"><label class="field-label">Página web actual</label><input name="current_website" type="url" placeholder="https://"></div>
+  </div>
+  <h3>Descripción del negocio</h3><div class="grid">
+   <div class="field full"><label class="field-label">¿A qué se dedica la empresa o persona?</label><textarea name="business_description" placeholder="Explica qué hace, qué vende o qué servicios presta."></textarea></div>
+   <div class="field full"><label class="field-label">Historia y trayectoria</label><textarea name="history" placeholder="Cómo nació, años de experiencia y antecedentes importantes."></textarea></div>
+   <div class="field full"><label class="field-label">¿Qué diferencia al negocio de sus competidores?</label><textarea name="differentiators" placeholder="Razones por las que un cliente debería elegirlo."></textarea></div>
+   <div class="field full"><label class="field-label">¿Qué tipo de clientes atiende?</label><textarea name="target_customers" placeholder="Personas, empresas, sectores, perfiles u otras características."></textarea></div>
+  </div>
+ </details>
+ <details class="accordion" id="objetivos">
+  <summary class="section-head"><div><h2>2. Objetivos comerciales</h2><p class="section-desc">Definir qué debe conseguir la página y qué acción se espera del visitante.</p></div><span class="section-num">02</span></summary>
+  <div class="grid">
+   <div class="field full"><label class="field-label">Objetivo principal de la página</label><textarea name="main_goal" placeholder="Ej. conseguir solicitudes de cotización, vender, agendar citas..."></textarea></div>
+   <div class="field full"><label class="field-label">Acción esperada del visitante</label><div class="checks">
+    <label><input type="checkbox" name="visitor_action" value="WhatsApp"> WhatsApp</label><label><input type="checkbox" name="visitor_action" value="Llamar"> Llamar</label><label><input type="checkbox" name="visitor_action" value="Cotización"> Solicitar cotización</label><label><input type="checkbox" name="visitor_action" value="Comprar"> Comprar</label><label><input type="checkbox" name="visitor_action" value="Agendar cita"> Agendar cita</label><label><input type="checkbox" name="visitor_action" value="Formulario"> Llenar formulario</label><label><input type="checkbox" name="visitor_action" value="Conocer empresa"> Conocer la empresa</label>
+   </div></div>
+   <div class="field"><label class="field-label">Producto o servicio prioritario</label><textarea name="priority_offer"></textarea></div>
+   <div class="field"><label class="field-label">¿Qué producto o servicio quieres vender más?</label><textarea name="sales_priority"></textarea></div>
+   <div class="field"><label class="field-label">Beneficio principal para el cliente</label><textarea name="main_benefit"></textarea></div>
+   <div class="field"><label class="field-label">Cobertura comercial</label><select name="coverage"><option value="">Seleccionar</option><option>Local</option><option>Regional</option><option>Nacional</option><option>Internacional</option><option>Virtual / sin ubicación específica</option></select></div>
+   <div class="field full"><label class="field-label">Ciudades, regiones o países donde presta servicios</label><textarea name="service_areas"></textarea></div>
+  </div>
+ </details>
+ <details class="accordion" id="seo">
+  <summary class="section-head"><div><h2>3. Información para SEO</h2><p class="section-desc">Datos para preparar el posicionamiento orgánico en buscadores. Si no conoces las palabras clave, puedes dejarlo pendiente para investigación.</p></div><span class="section-num">03</span></summary>
+  <h3>Datos SEO de la página</h3><div class="grid">
+   <div class="field"><label class="field-label">Meta Title <span class="help">(referencia: 50–60 caracteres)</span></label><input name="meta_title" type="text" maxlength="70"><div class="small-note" id="titleCount">0 caracteres</div></div>
+   <div class="field"><label class="field-label">Meta Description <span class="help">(referencia: 150–160 caracteres)</span></label><textarea name="meta_description" maxlength="200"></textarea><div class="small-note" id="descCount">0 caracteres</div></div>
+   <div class="field"><label class="field-label">Palabra clave principal</label><input name="primary_keyword" type="text"></div>
+   <div class="field"><label class="field-label">Palabras clave secundarias</label><textarea name="secondary_keywords"></textarea></div>
+   <div class="field"><label class="field-label">Ciudad o región objetivo</label><input name="seo_location" type="text"></div>
+   <div class="field"><label class="field-label">Perfil de Google Business</label><input name="google_business" type="url" placeholder="Enlace de Google Maps / perfil"></div>
+  </div>
+  <h3>Investigación y posicionamiento</h3><div class="grid">
+   <div class="field"><label class="field-label">Competidor 1 (URL)</label><input name="competitor_1" type="url" placeholder="https://"></div>
+   <div class="field"><label class="field-label">Competidor 2 (URL)</label><input name="competitor_2" type="url" placeholder="https://"></div>
+   <div class="field"><label class="field-label">Competidor 3 (URL)</label><input name="competitor_3" type="url" placeholder="https://"></div>
+   <div class="field full"><label class="field-label">Preguntas frecuentes que hacen los clientes</label><textarea name="customer_questions"></textarea></div>
+  </div>
+  <h3>Historial digital</h3><div class="grid">
+   <div class="field"><label class="field-label">¿Ya tienes una página posicionada en Google?</label><select name="indexed_site"><option value="">Seleccionar</option><option>Sí</option><option>No</option><option>No sé</option></select></div>
+   <div class="field"><label class="field-label">¿Quieres conservar la dirección de tu página actual?</label><select name="keep_url"><option value="">Seleccionar</option><option>Sí</option><option>No</option><option>Por definir</option></select></div>
+   <div class="field"><label class="field-label">¿Tienes acceso a Google Search Console?</label><select name="search_console"><option value="">Seleccionar</option><option>Sí</option><option>No</option><option>No sé</option></select></div>
+   <div class="field"><label class="field-label">¿Tienes acceso a Google Analytics?</label><select name="analytics"><option value="">Seleccionar</option><option>Sí</option><option>No</option><option>No sé</option></select></div>
+  </div>
+ </details>
+ <details class="accordion" id="contenido">
+  <summary class="section-head"><div><h2>4. Contenido de la página</h2><p class="section-desc">Entrega textos existentes, documentos o respuestas preliminares. No es necesario que estén redactados profesionalmente.</p></div><span class="section-num">04</span></summary>
+  <h3>Nosotros / Acerca de nosotros</h3><div class="grid">
+   <div class="field"><label class="field-label">Descripción de la empresa o profesional</label><textarea name="about_description"></textarea></div>
+   <div class="field"><label class="field-label">Historia y trayectoria</label><textarea name="about_history"></textarea></div>
+   <div class="field"><label class="field-label">Misión y visión <span class="help">(si existen)</span></label><textarea name="mission_vision"></textarea></div>
+   <div class="field"><label class="field-label">Valores corporativos</label><textarea name="values"></textarea></div>
+   <div class="field"><label class="field-label">Diferenciadores</label><textarea name="about_differentiators"></textarea></div>
+   <div class="field"><label class="field-label">Equipo de trabajo <span class="help">(si aplica)</span></label><textarea name="team"></textarea></div>
+  </div>
+  <h3>Servicios</h3><div id="services"></div><button class="add" type="button" onclick="addRepeat('services','Servicio')">+ Agregar servicio</button>
+  <h3>Productos <span class="help">(si aplica)</span></h3><div id="products"></div><button class="add" type="button" onclick="addRepeat('products','Producto')">+ Agregar producto</button>
+  <h3>Testimonios y casos de éxito</h3><div class="grid">
+   <div class="field full"><label class="field-label">Testimonios de clientes</label><textarea name="testimonials" placeholder="Texto del testimonio, nombre del cliente y empresa. Indicar si autorizan su publicación."></textarea></div>
+   <div class="field full"><label class="field-label">Casos de éxito y resultados obtenidos</label><textarea name="success_cases"></textarea></div>
+  </div>
+  <h3>Portafolio y proyectos realizados</h3><div class="grid">
+   <div class="field full"><label class="field-label">Proyectos, clientes, descripción y resultados</label><textarea name="portfolio"></textarea></div>
+  </div>
+  <h3>Preguntas frecuentes</h3><div class="grid">
+   <div class="field full"><label class="field-label">Preguntas y respuestas habituales</label><textarea name="faq" placeholder="Pregunta: ...&#10;Respuesta: ..."></textarea></div>
+  </div>
+  <h3>Información adicional</h3><div class="grid">
+   <div class="field"><label class="field-label">Certificaciones, licencias y reconocimientos</label><textarea name="certifications"></textarea></div>
+   <div class="field"><label class="field-label">Garantías y condiciones comerciales</label><textarea name="warranties"></textarea></div>
+   <div class="field full"><label class="field-label">Proceso de trabajo y otros contenidos relevantes</label><textarea name="process_other"></textarea></div>
+  </div>
+ </details>
+ <details class="accordion" id="recursos">
+  <summary class="section-head"><div><h2>5. Recursos y material disponible</h2><p class="section-desc">Indica dónde están los archivos o pega enlaces compartidos. Los archivos no se suben a un servidor desde esta versión del formulario.</p></div><span class="section-num">05</span></summary>
+  <div class="grid">
+   <div class="field"><label class="field-label">Logo (enlace al archivo)</label><input name="logo_link" type="url" placeholder="https://"></div>
+   <div class="field"><label class="field-label">Manual de marca (enlace)</label><input name="brand_manual" type="url" placeholder="https://"></div>
+   <div class="field"><label class="field-label">Paleta de colores / códigos HEX</label><input name="brand_colors" type="text" placeholder="Ej. #C6CFF2, #FFFFFF"></div>
+   <div class="field"><label class="field-label">Fotografías (enlace a carpeta)</label><input name="photos_link" type="url" placeholder="https://"></div>
+   <div class="field"><label class="field-label">Videos (YouTube, Vimeo, etc.)</label><textarea name="videos_links"></textarea></div>
+   <div class="field"><label class="field-label">Catálogos, brochures y documentos (enlaces)</label><textarea name="documents_links"></textarea></div>
+   <div class="field"><label class="field-label">Mockups o páginas de referencia (enlaces)</label><textarea name="references"></textarea></div>
+   <div class="field"><label class="field-label">Tipografías corporativas</label><input name="fonts" type="text"></div>
+  </div>
+  <h3>Redes sociales</h3><div class="grid">
+   <div class="field"><label class="field-label">Instagram</label><input name="instagram" type="url" placeholder="https://"></div>
+   <div class="field"><label class="field-label">Facebook</label><input name="facebook" type="url" placeholder="https://"></div>
+   <div class="field"><label class="field-label">LinkedIn</label><input name="linkedin" type="url" placeholder="https://"></div>
+   <div class="field"><label class="field-label">TikTok</label><input name="tiktok" type="url" placeholder="https://"></div>
+   <div class="field"><label class="field-label">YouTube</label><input name="youtube" type="url" placeholder="https://"></div>
+   <div class="field"><label class="field-label">Otras redes o enlaces externos</label><textarea name="other_links"></textarea></div>
+  </div>
+ </details>
+ <details class="accordion" id="contacto">
+  <summary class="section-head"><div><h2>6. Información de contacto</h2><p class="section-desc">Datos que se mostrarán en la página para que los visitantes puedan comunicarse con el negocio.</p></div><span class="section-num">06</span></summary>
+  <div class="grid">
+   <div class="field"><label class="field-label">Dirección física</label><input name="contact_address" type="text"></div>
+   <div class="field"><label class="field-label">Ciudad / país</label><input name="contact_city" type="text"></div>
+   <div class="field"><label class="field-label">Teléfono</label><input name="phone" type="tel"></div>
+   <div class="field"><label class="field-label">WhatsApp (incluir indicativo)</label><input name="whatsapp" type="tel" placeholder="+57..."></div>
+   <div class="field"><label class="field-label">Correo electrónico</label><input name="contact_email" type="email"></div>
+   <div class="field"><label class="field-label">Horarios de atención</label><input name="hours" type="text"></div>
+   <div class="field"><label class="field-label">Enlace de Google Maps</label><input name="maps_link" type="url" placeholder="https://"></div>
+   <div class="field"><label class="field-label">Responsable de recibir contactos</label><input name="lead_owner" type="text"></div>
+  </div>
+  <h3>Canales de atención</h3><div class="checks">
+   <label><input type="checkbox" name="channels" value="WhatsApp"> WhatsApp</label><label><input type="checkbox" name="channels" value="Teléfono"> Teléfono</label><label><input type="checkbox" name="channels" value="Correo"> Correo electrónico</label><label><input type="checkbox" name="channels" value="Formulario"> Formulario</label><label><input type="checkbox" name="channels" value="Presencial"> Presencial</label><label><input type="checkbox" name="channels" value="Agenda"> Agenda de citas</label>
+  </div>
+  <h3>Datos que debe solicitar el formulario de contacto</h3><div class="checks">
+   <label><input type="checkbox" name="contact_form_fields" value="Nombre"> Nombre</label><label><input type="checkbox" name="contact_form_fields" value="Correo"> Correo</label><label><input type="checkbox" name="contact_form_fields" value="Teléfono"> Teléfono</label><label><input type="checkbox" name="contact_form_fields" value="Empresa"> Empresa</label><label><input type="checkbox" name="contact_form_fields" value="Servicio de interés"> Servicio de interés</label><label><input type="checkbox" name="contact_form_fields" value="Descripción de necesidad"> Descripción de la necesidad</label>
+  </div>
+ </details>
+ <details class="accordion" id="tecnico">
+  <summary class="section-head"><div><h2>7. Información técnica y accesos existentes</h2><p class="section-desc">Identificar servicios digitales que ya existen y que podrían aprovecharse.</p></div><span class="section-num">07</span></summary>
+  <div class="grid">
+   <div class="field"><label class="field-label">¿Tienes dominio registrado?</label><select name="has_domain"><option value="">Seleccionar</option><option>Sí</option><option>No</option><option>No sé</option></select></div>
+   <div class="field"><label class="field-label">Nombre del dominio</label><input name="domain_name" type="text"></div>
+   <div class="field"><label class="field-label">¿Tienes hosting contratado?</label><select name="has_hosting"><option value="">Seleccionar</option><option>Sí</option><option>No</option><option>No sé</option></select></div>
+   <div class="field"><label class="field-label">Proveedor de hosting</label><input name="hosting_provider" type="text"></div>
+   <div class="field"><label class="field-label">¿Tienes acceso al administrador del dominio?</label><select name="domain_access"><option value="">Seleccionar</option><option>Sí</option><option>No</option><option>No sé</option></select></div>
+   <div class="field"><label class="field-label">¿Tienes acceso al hosting?</label><select name="hosting_access"><option value="">Seleccionar</option><option>Sí</option><option>No</option><option>No sé</option></select></div>
+   <div class="field"><label class="field-label">¿Tienes Google Analytics?</label><select name="has_analytics"><option value="">Seleccionar</option><option>Sí</option><option>No</option><option>No sé</option></select></div>
+   <div class="field"><label class="field-label">¿Tienes Google Search Console?</label><select name="has_gsc"><option value="">Seleccionar</option><option>Sí</option><option>No</option><option>No sé</option></select></div>
+   <div class="field"><label class="field-label">¿Tienes Meta Pixel u otras herramientas?</label><input name="tracking_tools" type="text"></div>
+  </div>
+  <p class="small-note">Por seguridad, no ingreses contraseñas, códigos de verificación, claves API ni credenciales. Los accesos se gestionan posteriormente por un medio seguro.</p>
+ </details>
+ <details class="accordion" id="revision">
+  <summary class="section-head"><div><h2>8. Revisión final y observaciones</h2><p class="section-desc">Registra aclaraciones, compromisos y elementos que deban resolverse antes de iniciar la construcción.</p></div><span class="section-num">08</span></summary>
+  <div class="grid">
+   <div class="field full"><label class="field-label">Observaciones generales</label><textarea name="general_notes" placeholder="Pendientes, aclaraciones, acuerdos o información adicional."></textarea></div>
+   <div class="field full"><label class="field-label">¿La información está lista para pasar a validación?</label><select name="ready_for_review"><option value="">Seleccionar</option><option>Sí</option><option>No</option><option>Parcialmente</option></select></div>
+  </div>
+  <div class="notice" style="margin-top:16px;margin-bottom:0">Antes de iniciar el diseño, revisar que los campos importantes estén entregados, que los enlaces funcionen y que el material tenga autorización de uso.</div>
+ </details>
+ </form>
+ <div class="toolbar">
+  <button class="btn-danger" type="button" onclick="clearForm()">Limpiar formulario</button>
+  <button class="btn-primary" type="button" onclick="exportJSON()">Descargar archivo de salida (.json)</button>
+ </div>
+ </div>
+</main>
+<footer>© <span id="year"></span> <strong>Víctor Vásquez</strong> · Formulario de levantamiento de información para proyectos web</footer>
+<script>
+const form=document.getElementById('brief');
+const storageKey='brief_web_victor_v1';
+document.getElementById('year').textContent=new Date().getFullYear();
+document.querySelectorAll('#nav a').forEach(a=>a.addEventListener('click',()=>{const target=document.querySelector(a.getAttribute('href'));if(target && target.tagName==='DETAILS')target.open=true;}));
+
+function addRepeat(containerId,label){
+ const container=document.getElementById(containerId), n=container.children.length+1;
+ const wrap=document.createElement('div');wrap.className='repeat-item';
+ const fields=containerId==='services'
+ ? [['Nombre del servicio','name'],['Descripción','description'],['Beneficios para el cliente','benefits'],['Características principales','features'],['Público al que va dirigido','audience'],['Precio (si se desea publicar)','price'],['Enlace a imagen o carpeta','image']]
+ : [['Nombre del producto','name'],['Descripción','description'],['Características','features'],['Beneficios','benefits'],['Precio','price'],['Enlace a fotografías','photos'],['Catálogo o documento (enlace)','catalog']];
+ wrap.innerHTML=`<div class="repeat-head"><span>${label} ${n}</span><button type="button" class="remove" aria-label="Eliminar ${label}" onclick="this.closest('.repeat-item').remove();updateProgress()">Eliminar</button></div><div class="grid"></div>`;
+ const grid=wrap.querySelector('.grid');
+ fields.forEach(([title,key])=>{const d=document.createElement('div');d.className='field'+(['description','benefits','features'].includes(key)?' full':'');const id=containerId+'_'+n+'_'+key;d.innerHTML=`<label class="field-label" for="${id}">${title}</label><input id="${id}" type="text" data-repeat="${containerId}" data-label="${title}">`;grid.appendChild(d)});
+ container.appendChild(wrap);updateProgress();
+}
+addRepeat('services','Servicio');addRepeat('products','Producto');
+
+function fieldStatus(el){
+ const holder=el.closest('.field')||el.parentElement;
+ let select=holder.querySelector('.status');
+ if(!select){const meta=document.createElement('div');meta.className='field-meta';select=document.createElement('select');select.className='status pendiente';select.innerHTML='<option value="Pendiente">Pendiente</option><option value="Entregado">Entregado</option><option value="N/A">N/A</option>';meta.appendChild(select);holder.appendChild(meta);select.addEventListener('change',()=>{select.className='status '+(select.value==='Entregado'?'entregado':select.value==='N/A'?'na':'pendiente');updateProgress();saveDraft()});}
+ return select;
+}
+function getData(){
+ const data={project:{},sections:{},repeatable:{services:[],products:[]},metadata:{author:'Víctor Vásquez',generated_at:new Date().toISOString(),format_version:1}};
+ const controls=[...form.querySelectorAll('input:not([type=checkbox]),textarea,select')];
+ controls.forEach(el=>{
+  if(el.classList.contains('status')||el.dataset.repeat)return;
+  const name=el.name;if(!name)return;
+  const status=fieldStatus(el).value;
+  const target=['project_name','business_name','responsible','responsible_email','start_date','due_date'].includes(name)?data.project:data.sections;
+  target[name]={value:el.value,status};
+ });
+ ['visitor_action','channels','contact_form_fields'].forEach(name=>{
+  const checked=[...form.querySelectorAll(`input[name="${name}"]:checked`)].map(x=>x.value);
+  data.sections[name]={value:checked,status:checked.length?'Entregado':'Pendiente'};
+ });
+ ['services','products'].forEach(id=>{
+  data.repeatable[id]=[...document.querySelectorAll(`#${id} .repeat-item`)].map(item=>{
+   const obj={};item.querySelectorAll('[data-repeat]').forEach(el=>obj[el.dataset.label]=el.value);return obj;
+  });
+ });
+ data.metadata.progress=progressValue();
+ return data;
+}
+function progressValue(){
+ const controls=[...form.querySelectorAll('input:not([type=checkbox]),textarea,select')].filter(el=>el.name&&!el.classList.contains('status')&&!el.dataset.repeat);
+ if(!controls.length)return 0;
+ const complete=controls.filter(el=>fieldStatus(el).value!=='Pendiente').length;
+ return Math.round(complete/controls.length*100);
+}
+function updateProgress(){
+ const p=progressValue();document.getElementById('percent').textContent=p+'%';document.getElementById('bar').style.width=p+'%';
+}
+function saveDraft(){try{localStorage.setItem(storageKey,JSON.stringify(getData()));}catch(e){}}
+function loadDraft(){
+ const raw=localStorage.getItem(storageKey);if(!raw){alert('No se encontró un borrador guardado en este navegador.');return;}
+ const data=JSON.parse(raw);
+ Object.entries(data.project||{}).forEach(([k,v])=>setField(k,v));
+ Object.entries(data.sections||{}).forEach(([k,v])=>{
+  if(['visitor_action','channels','contact_form_fields'].includes(k)){form.querySelectorAll(`input[name="${k}"]`).forEach(x=>x.checked=(v.value||[]).includes(x.value));return;}
+  setField(k,v);
+ });
+ ['services','products'].forEach(id=>{
+  document.getElementById(id).innerHTML='';
+  (data.repeatable?.[id]||[]).forEach(obj=>{addRepeat(id,id==='services'?'Servicio':'Producto');const item=document.querySelector(`#${id} .repeat-item:last-child`);item.querySelectorAll('[data-label]').forEach(el=>el.value=obj[el.dataset.label]||'');});
+ });
+ updateProgress();alert('Borrador recuperado.');
+}
+function setField(k,v){
+ const el=form.elements.namedItem(k);if(!el||!('value'in el))return;el.value=v.value??'';
+ const status=fieldStatus(el);status.value=v.status||'Pendiente';status.className='status '+(status.value==='Entregado'?'entregado':status.value==='N/A'?'na':'pendiente');
+}
+function exportJSON(){
+ const data=getData();const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json;charset=utf-8'});
+ const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;
+ const base=(data.project.business_name?.value||data.project.project_name?.value||'proyecto_web').toLowerCase().replace(/[^a-z0-9_-]+/g,'_');
+ a.download=`levantamiento_${base}.json`;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+ saveDraft();
+}
+function clearForm(){if(!confirm('¿Seguro que deseas borrar todos los datos de este formulario?'))return;form.reset();document.querySelectorAll('.status').forEach(s=>{s.value='Pendiente';s.className='status pendiente'});document.getElementById('services').innerHTML='';document.getElementById('products').innerHTML='';addRepeat('services','Servicio');addRepeat('products','Producto');localStorage.removeItem(storageKey);updateProgress();}
+form.addEventListener('input',e=>{if(e.target.name==='meta_title')document.getElementById('titleCount').textContent=e.target.value.length+' caracteres';if(e.target.name==='meta_description')document.getElementById('descCount').textContent=e.target.value.length+' caracteres';saveDraft();});
+form.addEventListener('change',()=>{saveDraft();updateProgress();});
+form.querySelectorAll('input:not([type=checkbox]),textarea,select').forEach(el=>{if(el.name)fieldStatus(el)});
+updateProgress();
+</script>
+</body></html>
